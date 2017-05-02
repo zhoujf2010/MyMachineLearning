@@ -26,6 +26,7 @@ if __name__ == '__main__':
     x = data[:, 7:8]
     y = data[:, 13:14]
     
+    print type(x)
 #     print 'x=', x
 #     print 'y=', y
 
