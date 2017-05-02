@@ -1,0 +1,2 @@
+from MyLinearRegression import gradientDescent
+from MyLinearRegression import gradientDescent2
