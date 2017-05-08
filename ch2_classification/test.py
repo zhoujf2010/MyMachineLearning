@@ -57,8 +57,17 @@ def gradAscent2(dataMatIn, classLabels):
         h = sigmoid(dataMatrix*weights)
         error = (labelMat - h)
         weights = weights + alpha * dataMatrix.transpose()* error
+        print computeCostJ(dataMatIn, classLabels,weights)
     return weights
 
+def computeCostJ(X, Y,theta):
+    theta = np.matrix(theta)
+    X = np.matrix(X)
+    y = np.matrix(Y)
+    first = np.multiply(-y, np.log(sigmoid(X * theta)))
+    second = np.multiply((1 - y), np.log(1 - sigmoid(X * theta)))
+    return np.sum(first - second) / (len(X))
+        
 if __name__ == '__main__':
     dataMat,labelMat = loadDataSet()
     print gradAscent2(dataMat,labelMat)
