@@ -10,12 +10,7 @@ import numpy as np
 
 
 class MyLogisticRegression(object):
-    '''
-    classdocs
-    '''
-
-
-    def __init__(self, alpha=0.01, epsilon=0.000001):
+    def __init__(self, alpha=0.01, epsilon=0.00001):
         self.alpha = alpha
         self.epsilon = epsilon  
         self.theta0 = 0
@@ -23,7 +18,6 @@ class MyLogisticRegression(object):
      
     def sigmod(self, inX):
         return 1.0 / (1 + exp(-inX))   
-    
     
     def computeCostJ(self,X, Y,theta):
         theta = np.matrix(theta)
@@ -41,20 +35,14 @@ class MyLogisticRegression(object):
         lastJ = 0
         times = 0
         self.theta = zeros((shape(X)[1], 1))  # 定义为3*1的参数矩阵
-        for t in range(200):  # 采用固定次数递推
-            error = (Y - self.sigmod(X * self.theta)) / m
-            self.theta += self.alpha * X.transpose() * error
-            times += 1
+        while  True:
+            sum = (Y - self.sigmod(X * self.theta)).T * X   #与回归多了一个sigmod函数
+            self.theta += self.alpha * sum.T / m
             J = self.computeCostJ(X, Y, self.theta)
-            print J
-#         while  True:
-#             sum = (Y - X * self.theta).T * X
-#             self.theta += self.alpha * sum.T / m
-#             J = self.computeCostJ(X, Y, self.theta)
-#             if abs(J - lastJ) < self.epsilon:  # 比较上一次与这次的costFun差值，来判断是否结束
-#                 break
-#             lastJ = J
-#             times += 1
+            if abs(J - lastJ) < self.epsilon:  # 比较上一次与这次的costFun差值，来判断是否结束
+                break
+            lastJ = J
+            times += 1
         self.times = times
         self.intercept_ = self.theta
         self.coef_ = self.theta

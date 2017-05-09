@@ -23,7 +23,7 @@ if __name__ == '__main__':
     
     mode = MyLogisticRegression()
     mode.fit(x, y)
-    print mode.coef_,mode.intercept_
+    print mode.coef_,mode.times
    
     # 用背景图色展示预测数据
     N, M = 500, 500  # x,y上切分多细
