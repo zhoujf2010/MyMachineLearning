@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
     mode = LogisticRegression()
     mode.fit(x,y)
+    print mode.coef_, mode.intercept_
     
    
     # 用背景图色展示预测数据

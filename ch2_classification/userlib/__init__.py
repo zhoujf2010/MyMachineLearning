@@ -1,1 +1,2 @@
 from MyLogisticRegression import MyLogisticRegression
+from MyLogisticRegression2 import MyLogisticRegression2

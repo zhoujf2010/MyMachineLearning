@@ -5,6 +5,10 @@ Created on 2017年5月5日
 @author: zjf
 '''
 
+'''
+自行实现的分类
+'''
+
 from numpy import *
 import numpy as np
 

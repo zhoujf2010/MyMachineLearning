@@ -13,17 +13,19 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression 
 from userlib import MyLogisticRegression 
+from userlib import MyLogisticRegression2 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
-    data = pd.read_csv('testdata1.txt', header=None)
+#     data = pd.read_csv('testdata1.txt', header=None)
+    data = pd.read_csv('ex2data1.txt', header=None)
     x, y = np.split(data.values, (2,), axis=1)
     
     
-    mode = MyLogisticRegression()
+    mode = MyLogisticRegression2()
     mode.fit(x, y)
-    print mode.coef_,mode.times
+    print mode.coef_, mode.intercept_
    
     # 用背景图色展示预测数据
     N, M = 500, 500  # x,y上切分多细
