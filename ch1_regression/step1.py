@@ -3,6 +3,8 @@
 Created on 2017年4月27日
 
 @author: Jeffrey Zhou
+
+利用sklearn的线性模拟进行一维数据的模拟
 '''
 
 import pandas as pd;

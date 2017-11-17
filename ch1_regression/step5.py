@@ -6,7 +6,7 @@ Created on 2017年5月2日
 '''
 
 '''
-自己实现批梯度下降
+自己实现随机机梯度下降
 '''
 
 from numpy import *
@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np;
 from sklearn.linear_model import LinearRegression
 
+
 def not_empty(s):
     return s != ''
 
@@ -23,41 +24,44 @@ class gradientDescent(object):
     def __init__(self, alpha=0.01, epsilon=0.000001):
         self.alpha = alpha
         self.epsilon = epsilon  
-        self.theta0 = 0
-        self.theta1 = 0              
     
-    def computeCostJ(self, x, y, theta0, theta1):
-        m = len(y)
-        s = 0
-        for i in range(m):
-            z = (theta0 + x[i] * theta1) - y[i]
-            s += z ** 2
-        return s / (2 * m)    
+    def computeCostJ(self, X, Y, theta):
+        m = len(Y)
+        z = X * theta - Y  # X为m*n记录 theta为n*1 相乘后得m*1可与y相减
+        z = multiply(z, z)  # 点乘，把m*1中的各元素计算平方
+        return sum(z) / (2 * m)
+
     
-    def fit(self, x, y):
-        m = len(y)   
+    def fit(self, X, Y):
+        m = len(Y)   
         lastJ = 0
         times = 0
+        X = mat(X)  #转化为矩阵对象
+        Y = mat(Y)
+        X = hstack((ones((len(X), 1)), X)) #追加θ0对应的x值，统为1，变成m*(n+1)
+        self.theta = zeros((shape(X)[1], 1))  # 定义为3*1的参数矩阵
+  
         while  True:
-            sum0 = 0;sum1 = 0
             for i in range(m):
-                d = y[i] - (self.theta0 + self.theta1 * x[i])
-                sum0 += d
-                sum1 += d * x[i]
-            self.theta0 += self.alpha * sum0 / m
-            self.theta1 += self.alpha * sum1 / m
-            J = self.computeCostJ(x, y, self.theta0, self.theta1)
+                d = (Y[i] - X[i]*self.theta)* X[i]
+                self.theta += self.alpha * d.T
+  
+            #sum = (Y - X * self.theta).T * X
+            #self.theta += self.alpha * sum.T / m
+            J = self.computeCostJ(X, Y, self.theta)
             if abs(J - lastJ) < self.epsilon:  # 比较上一次与这次的costFun差值，来判断是否结束
                 break
             lastJ = J
             times += 1
         self.times = times
-        self.intercept_ = self.theta0
-        self.coef_ = self.theta1
+        self.intercept_ = self.theta[0]
+        self.coef_ = self.theta[1:]
         return self
     
     def predict(self,x):
-        y = self.theta0 + x * self.theta1
+        x = mat(x)
+        x = hstack((ones((len(x), 1)), x)) 
+        y = x * self.theta
         return y
     
 if __name__ == '__main__':

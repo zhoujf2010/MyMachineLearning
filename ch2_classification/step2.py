@@ -25,7 +25,7 @@ if __name__ == '__main__':
 #     print y
 
     mode = LogisticRegression()
-    mode.fit(x,y)
+    mode.fit(x, y)
     print mode.coef_, mode.intercept_
     
    
@@ -38,10 +38,10 @@ if __name__ == '__main__':
     x_test = np.stack((x0.flat, x1.flat), axis=1)
     y_hat = mode.predict(x_test).reshape(x0.shape)
     
-    plt.pcolormesh(x0,x1,y_hat,cmap=mpl.colors.ListedColormap(['#77E0A0', '#FF8080', '#A0A0FF']))
+    plt.pcolormesh(x0, x1, y_hat, cmap=mpl.colors.ListedColormap(['#77E0A0', '#FF8080', '#A0A0FF']))
     
     # 展示原始数据
-    plt.scatter(x[:, 0], x[:, 1], c=y, cmap=mpl.colors.ListedColormap(['g', 'r','b']))
+    plt.scatter(x[:, 0], x[:, 1], c=y[:, 0], cmap=mpl.colors.ListedColormap(['g', 'r', 'b']))
     
     plt.show()
     

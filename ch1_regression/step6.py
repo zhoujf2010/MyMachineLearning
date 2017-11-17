@@ -1,12 +1,15 @@
-# -*- coding:utf-8 -*-
+# coding=utf-8
 '''
-Created on 2017年4月27日
+Created on 2017年5月2日
 
-@author: Jeffrey Zhou
-
-利用sklearn的线性模拟进行多维数据的模拟
+@author: zjf
 '''
 
+'''
+自己实现正规方程
+'''
+
+from numpy import *
 import pandas as pd;
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -25,29 +28,20 @@ if __name__ == '__main__':
         data[i] = map(float, filter(not_empty, row[0].split(' ')))  # 处理一行数据，拆分到数组中
     
 #     print "data=\n",data
-    x = data[:, 0:13]
+    x = data[:, 7:8]
     y = data[:, 13:14]
     
-#     print 'x=', x
-#     print 'y=', y
-
-#     # 线性回归
-    mode = LinearRegression()
-    mode.fit(x, y)
-    print mode.coef_, mode.intercept_
+    X= mat(x)
+    X = hstack((ones((len(X), 1)), X)) #追加θ0对应的x值，统为1，变成m*(n+1)
+    Y = mat(y)
+    theta = (X.T * X).I * X.T * Y
+    print theta
     
-    y_hat = mode.predict(x)  # 用模型直接预测数据
-    
+    y_hat = X *theta  # 用模型直接预测数据
+     
     mpl.rcParams['font.sans-serif'] = [u'simHei']
     mpl.rcParams['axes.unicode_minus'] = False
-    
-    order = y.argsort(axis=0).reshape((1,-1))[0]    #获取按y排序后的序号
-    y = y[order]
-    x = x[order]
-    y_hat = y_hat[order]
-    t = np.arange(len(x))
-    plt.plot(t, y, 'r-', label=u'原始数据')
-    plt.plot(t, y_hat, 'g-', label=u'预测数据')
-    
-    plt.legend(loc="upper left")
+    plt.plot(x, y, 'rx', label=u'原始数据')
+    plt.plot(x, y_hat, 'g-', label=u'预测数据')
+    plt.legend(loc="upper right")
     plt.show()

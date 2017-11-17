@@ -37,11 +37,10 @@ if __name__ == '__main__':
     x_test = np.stack((x0.flat, x1.flat), axis=1)
     y_hat = mode.predict(x_test).reshape(x0.shape)
     
-    plt.pcolormesh(x0,x1,y_hat,cmap=mpl.colors.ListedColormap(['#77E0A0', '#FF8080']))
-    
+    plt.pcolormesh(x0, x1, y_hat, cmap=mpl.colors.ListedColormap(['#77E0A0', '#FF8080']))
     
     # 展示原始数据
-    plt.scatter(x[:, 0], x[:, 1], c=y, cmap=mpl.colors.ListedColormap(['g', 'b']))
+    plt.scatter(x[:, 0], x[:, 1], c=y[:,0], cmap=mpl.colors.ListedColormap(['g', 'b']))
     
     plt.show()
     

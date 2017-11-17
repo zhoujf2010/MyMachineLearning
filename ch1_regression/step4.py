@@ -1,60 +1,86 @@
-# -*- coding:utf-8 -*-
+# coding=utf-8
 '''
 Created on 2017年5月2日
 
-@author: Jeffrey Zhou
+@author: zjf
 '''
 
 '''
-多项式
+自己实现批机梯度下降（改进为参数向量化)
 '''
 
-from sklearn.preprocessing import PolynomialFeatures
+from numpy import *
 import pandas as pd;
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np;
 from sklearn.linear_model import LinearRegression
-from sklearn.pipeline import Pipeline
 
 
+def not_empty(s):
+    return s != ''
+
+class gradientDescent(object):
+    def __init__(self, alpha=0.01, epsilon=0.000001):
+        self.alpha = alpha
+        self.epsilon = epsilon  
+    
+    def computeCostJ(self, X, Y, theta):
+        m = len(Y)
+        z = X * theta - Y  # X为m*n记录 theta为n*1 相乘后得m*1可与y相减
+        z = multiply(z, z)  # 点乘，把m*1中的各元素计算平方
+        return sum(z) / (2 * m)
+
+    
+    def fit(self, X, Y):
+        m = len(Y)   
+        lastJ = 0
+        times = 0
+        X = mat(X)  #转化为矩阵对象
+        Y = mat(Y)
+        X = hstack((ones((len(X), 1)), X)) #追加θ0对应的x值，统为1，变成m*(n+1)
+        self.theta = zeros((shape(X)[1], 1))  # 定义为3*1的参数矩阵
+       
+        while  True:
+            sum = (Y - X * self.theta).T * X
+            self.theta += self.alpha * sum.T / m
+            J = self.computeCostJ(X, Y, self.theta)
+            if abs(J - lastJ) < self.epsilon:  # 比较上一次与这次的costFun差值，来判断是否结束
+                break
+            lastJ = J
+            times += 1
+        self.times = times
+        self.intercept_ = self.theta[0]
+        self.coef_ = self.theta[1:]
+        return self
+    
+    def predict(self,x):
+        x = mat(x)
+        x = hstack((ones((len(x), 1)), x)) 
+        y = x * self.theta
+        return y
+    
 if __name__ == '__main__':
-    np.set_printoptions(suppress=True) #设置展示时不要用科学计数法
+    np.set_printoptions(suppress=True)  # 控制print时，不要用科学计数法显示
+    datard = pd.read_csv("housing.data", header=None)
+    data = np.empty((len(datard), 14))  # 创建一个N行14列的数据
+    for i, row in enumerate(datard.values):
+        data[i] = map(float, filter(not_empty, row[0].split(' ')))  # 处理一行数据，拆分到数组中
     
-    x = np.array([1, 2, 3, 4, 5, 6]).reshape((-1, 1))
-    y = np.array([1, 4, 9, 16, 25, 36]).reshape((-1, 1))
-    x_test = np.linspace(min(x), max(x), 100).reshape((-1, 1))
-
-    #升成多项式(手动计算)
-#     x2 = np.hstack((np.ones((x.shape[0], 1)), x, x * x))
-#     x_test2 = np.hstack((np.ones((x_test.shape[0], 1)), x_test, x_test * x_test))
-#     print x2
-
-    #升成多项式(公式计算)
-#     mode = PolynomialFeatures()
-#     mode.set_params(degree=2)
-#     x2 = mode.fit_transform(x)
-#     x_test2 =mode.fit_transform(x_test)
-#     print x2
+#     print "data=\n",data
+    x = data[:, 7:8]
+    y = data[:, 13:14]
     
-    # 线性回归
-#     mode = LinearRegression()
-#     mode.fit(x2, y)
-#     print 'theta=', mode.coef_, mode.intercept_
-#     y_hat = mode.predict(x_test2)  # 用模型直接预测数据
-
-    #用Pipeline合并两个模型
-    mode = Pipeline([
-        ('poly', PolynomialFeatures()),
-        ('linear', LinearRegression())])
-    mode.set_params(poly__degree=2)
+    
+    mode = gradientDescent(alpha = 0.01,epsilon = 0.000001)
     mode.fit(x, y)
-    y_hat = mode.predict(x_test)  # 用模型直接预测数据
-
-    #展示结果
+    print mode.coef_, mode.intercept_
+    
+    y_hat = mode.predict(x)  # 用模型直接预测数据
+     
     mpl.rcParams['font.sans-serif'] = [u'simHei']
     mpl.rcParams['axes.unicode_minus'] = False
     plt.plot(x, y, 'rx', label=u'原始数据')
-    plt.plot(x_test, y_hat, 'g-', label=u'预测数据')
-    plt.legend(loc="upper left")
+    plt.plot(x, y_hat, 'g-', label=u'预测数据')
+    plt.legend(loc="upper right")
     plt.show()
