@@ -19,6 +19,7 @@ from sklearn.pipeline import Pipeline
 
 
 if __name__ == '__main__':
+    np.set_printoptions(suppress=True,linewidth=300) #设置展示时不要用科学计数法
     np.random.seed(0)  # 设置随机种子，目的是为了每次都相同的随机数
     x = np.linspace(0, 6, 9)
     y = x ** 2 - 4 * x - 3 + np.random.randn(9)
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     for d in range(1, 8):
         mode.set_params(poly__degree=d)
         mode.fit(x, y)
-        
+        print d,mode.named_steps['linear'].coef_,mode.named_steps['linear'].intercept_
         x_hat = np.linspace(min(x), max(x), 100)
         x_hat.shape = -1, 1
         y_hat = mode.predict(x_hat)
