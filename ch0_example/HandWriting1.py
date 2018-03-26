@@ -12,7 +12,7 @@ Created on 2017年12月14日
 import numpy as np;
 import matplotlib.pyplot as plt
 from sklearn import datasets,metrics
-from Tkinter import Frame,Button,Canvas,Label
+from tkinter import Frame,Button,Canvas,Label
 from sklearn.linear_model import LogisticRegression 
 from PIL import Image,ImageDraw
 from sklearn.preprocessing import label_binarize
@@ -88,10 +88,10 @@ class MainFrame(Frame):  # 定义窗体
 
     def docalc(self):
         data = self.getCanvImg();
-        print np.shape(data)
+        print(np.shape(data))
         # 灰度处理
         data = self.rgb2gray(data)
-        print np.shape(data)
+        print(np.shape(data))
         
         # 反转值
         data = 255 - data
@@ -137,7 +137,7 @@ class MainFrame(Frame):  # 定义窗体
                 top1 -= p
                 top2 += p
             
-        data = data[top1:top2, left1:left2]
+        data = data[int(top1):int(top2), int(left1):int(left2)]
         
         # 缩放
         data = Image.fromarray(data * 16).resize((8, 8), Image.ANTIALIAS)  
@@ -152,9 +152,9 @@ class MainFrame(Frame):  # 定义窗体
         # Image.fromarray(255 - data).convert('RGB').save('E:\\y.png')  # 将示例输出保存为图片
         
         # 模型预测结果
-        data = data.reshape((-1))
+        data = data.reshape(1, -1)
         t = mode.predict(data)
-        print 'data=', data, '\n识别=', t[0]
+        print ('data=', data, '\n识别=', t[0])
         self.lbl["text"] = t[0]
         
         
@@ -164,8 +164,8 @@ if __name__ == '__main__':
     
     # 从库中加载数据
     digits = datasets.load_digits()
-    print 'shape=',np.shape(digits.images), np.shape(digits.target)
-    print digits.images[0],'\r\n',digits.target[0] #输出一个示例数据
+    print('shape=',np.shape(digits.images), np.shape(digits.target))
+    print(digits.images[0],'\r\n',digits.target[0]) #输出一个示例数据
     # Image.fromarray(255 - digits.images[0] * 16).convert('RGB').save('E:\\x.png') #将示例输出保存为图片
     
     # 单条数据变成一维
@@ -175,6 +175,7 @@ if __name__ == '__main__':
     # 送模型训练
     mode = LogisticRegression()
     mode.fit(data, digits.target)
+    print('0号数据预测:',mode.predict(data[0].reshape(1, -1)))
     
     # 评分
     y_hat = mode.predict(data)
@@ -184,9 +185,9 @@ if __name__ == '__main__':
     fpr, tpr, thresholds = metrics.roc_curve(y.ravel(), y_score.ravel())
     auc = metrics.auc(fpr, tpr)
     accuracy = metrics.accuracy_score(digits.target, y_hat)  # 计算精确度
-    print 'auc=', auc, u'精确度=', accuracy
-    plt.plot(fpr, tpr, c='r', lw=2, ls='-', alpha=0.8)
-    plt.show()
+    print('auc=', auc, u'精确度=', accuracy)
+    #plt.plot(fpr, tpr, c='r', lw=2, ls='-', alpha=0.8)
+    #plt.show()
     
     # 显示手写窗体
     app = MainFrame(mode)

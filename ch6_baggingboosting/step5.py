@@ -30,7 +30,7 @@ if __name__ == '__main__':
     y = np.zeros_like(x, dtype=np.float)
     for i, t in enumerate(x):
         y[i] = bagging(t, 0.6)
-        if i % 10 == 0:
+        if (t+1) % 10 == 0:
             print t, '采样正确率：', y[i]
 
     # 显示结果

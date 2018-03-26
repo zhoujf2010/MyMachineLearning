@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
     path = '..\\ch2_classification\\iris.data'  # 数据文件路径
     data = pd.read_csv(path, header=None)
-    x, y = data[range(4)], data[4]
+    x, y = data[[0,1,2,3]], data[4]
     y = pd.Categorical(y).codes
     x = x[[0, 1]] #取花萼长度，花萼宽度 两个属性
     

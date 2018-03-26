@@ -26,7 +26,7 @@ if __name__ == '__main__':
     x.shape = -1, 1
     y.shape = -1, 1
     
-    print 'x=', x.T, '\r\ny=', y.T
+    print ('x=', x.T, '\r\ny=', y.T)
         
     mode = Pipeline([
         ('poly', PolynomialFeatures()),
@@ -37,14 +37,15 @@ if __name__ == '__main__':
     mpl.rcParams['axes.unicode_minus'] = False
     plt.plot(x, y, 'rx', label=u'原始数据')
     
-    for d in range(1, 8):
-        mode.set_params(poly__degree=d)
-        mode.fit(x, y)
-        print d,mode.named_steps['linear'].coef_,mode.named_steps['linear'].intercept_
-        x_hat = np.linspace(min(x), max(x), 100)
-        x_hat.shape = -1, 1
-        y_hat = mode.predict(x_hat)
-        plt.plot(x_hat, y_hat, label=u'd=%d阶' % d)
+#     for d in range(1, 8):
+    d=8
+    mode.set_params(poly__degree=d)
+    mode.fit(x, y)
+    print (d,mode.named_steps['linear'].coef_,mode.named_steps['linear'].intercept_)
+    x_hat = np.linspace(min(x), max(x), 100)
+    x_hat.shape = -1, 1
+    y_hat = mode.predict(x_hat)
+    plt.plot(x_hat, y_hat, label=u'd=%d阶' % d)
         
     plt.legend(loc="upper left")
     plt.show()

@@ -22,7 +22,7 @@ if __name__ == '__main__':
     datard = pd.read_csv("housing.data", header=None)
     data = np.empty((len(datard), 14))  # 创建一个N行14列的数据
     for i, row in enumerate(datard.values):
-        data[i] = map(float, filter(not_empty, row[0].split(' ')))  # 处理一行数据，拆分到数组中
+        data[i] = [float(s) for s in filter(not_empty, row[0].split(' '))] # 处理一行数据，拆分到数组中
     
 #     print "data=\n",data
     x = data[:, 0:13]
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 #     # 线性回归
     mode = LinearRegression()
     mode.fit(x, y)
-    print mode.coef_, mode.intercept_
+    print( mode.coef_, mode.intercept_)
     
     y_hat = mode.predict(x)  # 用模型直接预测数据
     

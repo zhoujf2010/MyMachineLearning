@@ -28,7 +28,7 @@ if __name__ == '__main__':
     #升成多项式(手动计算)
 #     x2 = np.hstack((np.ones((x.shape[0], 1)), x, x * x))
 #     x_test2 = np.hstack((np.ones((x_test.shape[0], 1)), x_test, x_test * x_test))
-#     print x2
+#     print (x2)
 
     #升成多项式(公式计算)
 #     mode = PolynomialFeatures()
