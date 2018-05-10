@@ -166,7 +166,7 @@ if __name__ == '__main__':
     digits = datasets.load_digits()
     print('shape=',np.shape(digits.images), np.shape(digits.target))
     print(digits.images[0],'\r\n',digits.target[0]) #输出一个示例数据
-    # Image.fromarray(255 - digits.images[0] * 16).convert('RGB').save('E:\\x.png') #将示例输出保存为图片
+    Image.fromarray(255 - digits.images[0] * 16).convert('RGB').save('E:\\x.png') #将示例输出保存为图片
     
     # 单条数据变成一维
     n_samples = len(digits.images)
