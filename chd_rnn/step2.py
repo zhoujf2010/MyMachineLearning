@@ -9,6 +9,8 @@ Created on 2018年8月1日
 
 import numpy as np
 from copy import deepcopy
+from chd_rnn.step1 import loadData
+import random
 
 
 def softmax(x):
@@ -142,56 +144,29 @@ def train(X, Y, num_iterations, hiddencells=50, learning_rate=0.01):
     return parameters, plst
 
     
-def predict(parameters, char_to_ix, ix_to_char, seed):
-    Waa, Wax, Wya, by, ba = parameters['Waa'], parameters['Wax'], parameters['Wya'], parameters['by'], parameters['ba']
-    vocab_size = by.shape[0]
-    n_a = Waa.shape[1]
+def predict(parameters, char_to_ix, ix_to_char, startstr):
+    vocab_size = parameters['by'].shape[0]
+    n_a = parameters['Waa'].shape[1]
     
-    ### START CODE HERE ###
-    # Step 1: Create the one-hot vector x for the first character (initializing the sequence generation). (≈1 line)
-    x = np.zeros([vocab_size, 1])
-    # Step 1': Initialize a_prev as zeros (≈1 line)
+    idx = startstr
     a_prev = np.zeros([n_a, 1])
+    indices = [idx]
     
-    # Create an empty list of indices, this is the list which will contain the list of indices of the characters to generate (≈1 line)
-    indices = []
-    
-    # Idx is a flag to detect a newline character, we initialize it to -1
-    idx = -1 
-    
-    # Loop over time-steps t. At each time-step, sample a character from a probability distribution and append 
-    # its index to "indices". We'll stop if we reach 50 characters (which should be very unlikely with a well 
-    # trained model), which helps debugging and prevents entering an infinite loop. 
-    counter = 0
-    newline_character = char_to_ix['\n']
-    while (idx != newline_character and counter != 50):
-        # Step 2: Forward propagate x using the equations (1), (2) and (3)
-        a = np.tanh(np.dot(Wax, x) + np.dot(Waa, a_prev) + ba)
-        z = np.dot(Wya, a) + by
-        y = softmax(z)
+    # 递推式预测后面的词，总长不超过50
+    for _ in range(50):
+        x = np.zeros([vocab_size, 1])
+        x[idx, 0] = 1
+        # 向前计算
+        a_prev, y, _ = rnn_cell_forward(x, a_prev, parameters)
         
-        # for grading purposes
-        np.random.seed(counter + seed) 
-        # Step 3: Sample the index of a character within the vocabulary from the probability distribution y
-        idx = np.random.choice(range(len(y)), p=y.ravel())
-        # Append the index to "indices"
+        idx = y.tolist().index(max(y)) 
         indices.append(idx)
-        # Step 4: Overwrite the input character as the one corresponding to the sampled index.
-        x = np.zeros((vocab_size, 1))
-        x[idx] = 1
-        # Update "a_prev" to be "a"
-        a_prev = a
-        # for grading purposes
-        seed += 1
-        counter += 1
-    ### END CODE HERE ###
-    if (counter == 50):
-        indices.append(char_to_ix['\n'])
-#     print_sample(sampled_indices, ix_to_char)
-#     return indices
+        if idx == char_to_ix['\n']:
+            break  # 碰到\n 表示结束
+        
+    indices.append(char_to_ix['\n'])
     txt = ''.join(ix_to_char[ix] for ix in indices)
-    txt = txt[0].upper() + txt[1:]
-    return txt
+    return txt[0].upper() + txt[1:]  # 处理首字母大写
 
 
 def test():
@@ -273,51 +248,38 @@ def test():
 
 
 if __name__ == '__main__':
-
 #     test()
     np.set_printoptions(linewidth=300)
     np.random.seed(0)
+    
+    rows, char_to_ix, ix_to_char, vocab, maxlen = loadData("dinos.txt")
   
-    data = open('dinos.txt', 'r').read()
-    data = data.lower()
-    chars = list(set(data))
-    data_size, vocab_size = len(data), len(chars)
-    print('There are %d total characters and %d unique characters in your data.' % (data_size, vocab_size))
-         
-    char_to_ix = { ch:i for i, ch in enumerate(sorted(chars)) }
-    ix_to_char = { i:ch for i, ch in enumerate(sorted(chars)) }
-    print(ix_to_char)                                                                           
-     
-    with open("dinos.txt") as f:
-        examples = f.readlines()
-        examples = [x.lower().strip() for x in examples]
-     
-    # Shuffle list of all dinosaur names
-    np.random.shuffle(examples)
-     
-    X, Y = [], []
-     
-    for row in examples:
-        x = [None] + [char_to_ix[ch] for ch in row]
-        dx = np.zeros((27, len(x)))
-        for i in range(len(x)):
-            if (x[i] != None):
-                dx[x[i], i] = 1
+    # 数据进行one-hot编码
+    X = []
+    for row in rows:
+        dx = np.zeros((27, len(row)))
+        for i in range(len(row)):
+            if (row[i] != None):
+                dx[row[i], i] = 1
         X.append(dx)
-        y = x[1:] + [char_to_ix["\n"]]
-        
-        dy = np.zeros((27, len(y)))
-        for i in range(len(y)):
-            if (y[i] != None):
-                dy[y[i], i] = 1
-        Y.append(dy)
-     
+    
+    # 偏移1位，形成Y
+    Y = []
+    dtadd = np.zeros((27, 1))
+    dtadd[0, 0] = 1
+    for dx in X:
+        Y.append(np.hstack((dx[:, 1:], dtadd)))
+    
+    # 训练
     _, plst = train(X, Y, 10000)  # 35000
+    
+    # 预测
     for item in plst:
         print("\nIteration:", item)
         parameters = plst[item]
         seed = 0
         for name in range(5):
-            newname = predict(parameters, char_to_ix, ix_to_char, seed)
+            startstr = random.randint(0, len(vocab) - 1)
+            newname = predict(parameters, char_to_ix, ix_to_char, startstr)
             print(newname.strip())
             seed += 1
