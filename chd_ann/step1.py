@@ -60,9 +60,9 @@ if __name__ == '__main__':
     # 生成数据
     X, Y = load_dataset()
     print(np.shape(X), np.shape(Y))
-    X = X.T
-    Y = Y.T
     # showData(X,Y)
+    X = X.T  #这是个坑，tf1.x与tf2.x反的
+    Y = Y.T
 
     # 采用Logistic回归进行预测
 #     mode = LogisticRegression()
