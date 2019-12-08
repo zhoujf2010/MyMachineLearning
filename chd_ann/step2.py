@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # 生成数据
     X, Y = load_dataset()
     print(np.shape(X), np.shape(Y))
-    # showData(X,Y)
+    showData(X,Y)
 
     # 初使化参数
     (n_x, m) = np.shape(X)
