@@ -92,7 +92,7 @@ class MyLogisticRegression(object):
 
 if __name__ == '__main__':
     
-    print np.log(np.exp(80)+np.exp(90))
+    print(np.log(np.exp(80)+np.exp(90)))
     
     
     data = pd.read_csv("iris.data", header=None)

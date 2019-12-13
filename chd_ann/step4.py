@@ -52,66 +52,92 @@ if __name__ == '__main__':
     # load image dataset: blue/red dots in circles
     train_X, train_Y, test_X, test_Y = load_2D_dataset()
     print(np.shape(train_X), np.shape(train_Y))
-    # showData(train_X, train_Y)
-    # 定义占位符(placeholder)
-    (n_x, m) = np.shape(train_X)
-    n_y = 1  # y的类别
-    X_hold = tf.placeholder("float", shape=[n_x, None], name="X")
-    Y_hold = tf.placeholder("float", shape=[n_y, None], name="Y")
-
-    # 初使化参数 normal
-    tf.set_random_seed(1)
-    parameters = {
-        "W1": tf.Variable(tf.random_normal([4, n_x])),
-        "b1": tf.Variable(tf.zeros([4, 1])),
-        "W2": tf.Variable(tf.random_normal([4, 4])),
-        "b2": tf.Variable(tf.zeros([4, 1])),
-        "W3": tf.Variable(tf.random_normal([n_y, 4])),
-        "b3": tf.Variable(tf.zeros([n_y, 1]))
-    }
-    # 初使化参数 zero
-#     tf.set_random_seed(1)
-#     parameters = {
-#         "W1": tf.Variable(tf.zeros([4, n_x])),
-#         "b1": tf.Variable(tf.zeros([4, 1])),
-#         "W2": tf.Variable(tf.zeros([n_y, 4])),
-#         "b2": tf.Variable(tf.zeros([n_y, 1]))
-#     }
-    learning_rate = 1.2  # 学习率
+#     showData(train_X, train_Y)
+    
+    train_X = train_X.T
+    train_Y = train_Y.T
+    test_X = test_X.T
+    test_Y = test_Y.T
+    learning_rate = 0.3
     num_steps = 10000  # 总迭代次数
- 
-    # 定义向前传播
-    Z1 = tf.add(tf.matmul(parameters['W1'], X_hold), parameters['b1'])
-    A1 = tf.nn.relu(Z1)
-    Z2 = tf.add(tf.matmul(parameters['W2'], A1), parameters['b2'])
-    A2 = tf.nn.relu(Z2)
-    Z3 = tf.add(tf.matmul(parameters['W3'], A2), parameters['b3'])
-    A3 = tf.nn.sigmoid(Z3)
-    Y_Out = tf.round(A3)
- 
-    # 定义损失函数
-    costJ = tf.reduce_mean(-Y_hold * tf.log(A3) - (1 - Y_hold) * tf.log(1 - A3))
- 
+    
+#     learning_rate = 0.02
+#     num_steps = 20000  # 总迭代次数
+    
+     
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Dense(units=4,
+                              kernel_initializer=tf.keras.initializers.RandomNormal(),
+                              bias_initializer=tf.zeros_initializer(),
+                              activation=tf.nn.relu),
+        tf.keras.layers.Dense(units=4,
+                              kernel_initializer=tf.keras.initializers.RandomNormal(),
+                              bias_initializer=tf.zeros_initializer(),
+                              activation=tf.nn.relu),
+        tf.keras.layers.Dense(units=1,
+                              kernel_initializer=tf.keras.initializers.RandomNormal(),
+                              bias_initializer=tf.zeros_initializer(),
+                              activation=tf.nn.sigmoid)])
+
+
+#     model = tf.keras.models.Sequential([
+#         tf.keras.layers.Dense(units=4,
+#                               kernel_initializer=tf.keras.initializers.RandomNormal(),
+#                               bias_initializer=tf.zeros_initializer(),
+#                               kernel_regularizer=tf.keras.regularizers.l2(0.001),
+#                               activation=tf.nn.relu),
+#         tf.keras.layers.Dense(units=4,
+#                               kernel_initializer=tf.keras.initializers.RandomNormal(),
+#                               bias_initializer=tf.zeros_initializer(),
+#                               kernel_regularizer=tf.keras.regularizers.l2(0.001),
+#                               activation=tf.nn.relu),
+#         tf.keras.layers.Dense(units=1,
+#                               kernel_initializer=tf.keras.initializers.RandomNormal(),
+#                               bias_initializer=tf.zeros_initializer(),
+#                               kernel_regularizer=tf.keras.regularizers.l2(0.001),
+#                               activation=tf.nn.sigmoid)])
+#     model = tf.keras.models.Sequential([
+#         tf.keras.layers.Dense(units=4,
+#                               kernel_initializer=tf.keras.initializers.RandomNormal(),
+#                               bias_initializer=tf.zeros_initializer(),
+#                               activation=tf.nn.relu),
+#         tf.keras.layers.Dropout(0.2),
+#         tf.keras.layers.Dense(units=4,
+#                               kernel_initializer=tf.keras.initializers.RandomNormal(),
+#                               bias_initializer=tf.zeros_initializer(),
+#                               activation=tf.nn.relu),
+#         tf.keras.layers.Dropout(0.2),
+#         tf.keras.layers.Dense(units=1,
+#                               kernel_initializer=tf.keras.initializers.RandomNormal(),
+#                               bias_initializer=tf.zeros_initializer(),
+#                               activation=tf.nn.sigmoid)])
+    
     # 定义反向传播的优化器
-    optimizer = tf.train.GradientDescentOptimizer(
-        learning_rate=learning_rate).minimize(costJ)
- 
+    optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
+     
+    costs =[]
     # 模型训练
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
     for i in range(num_steps):
-        _, cost = sess.run([optimizer, costJ], feed_dict={
-            X_hold: train_X, Y_hold: train_Y})
+        with tf.GradientTape() as tape:
+            y_pred = model(train_X)
+            # 定义损失函数
+            loss = tf.losses.mean_squared_error(train_Y, y_pred)
         if i % 1000 == 0:
-            print("Cost after epoch %i: %f" % (i, cost))
- 
-    # 写入可视化
-    #tf.summary.FileWriter("log", sess.graph)
+            print("batch %d: loss %f" % (i, tf.reduce_mean(loss).numpy()))
+            costs.append(tf.reduce_mean(loss).numpy())
+        grads = tape.gradient(loss, model.variables)
+        optimizer.apply_gradients(grads_and_vars=zip(grads, model.variables))
  
     # 预测，并输出
-    y_hat = sess.run(Y_Out, feed_dict={X_hold: train_X})
+    y_hat = tf.round(model(train_X)).numpy()
     print("ann accuracy:", np.mean(train_Y == y_hat) * 100, "%")
-    showData(train_X, train_Y, lambda testX: sess.run(
-        Y_Out, feed_dict={X_hold: testX.T}))
- 
-    sess.close()  # 关闭对象
+    y_hat2 = tf.round(model(test_X)).numpy()
+    print("test accuracy:", np.mean(test_Y == y_hat2) * 100, "%")
+    showData(train_X.T, train_Y.T, lambda testX: tf.round(model(testX)).numpy())
+    
+    plt.plot(costs)
+    plt.ylabel('cost')
+    plt.xlabel('iterations (per hundreds)')
+    plt.title("Learning rate =" + str(learning_rate))
+    plt.show()
+
