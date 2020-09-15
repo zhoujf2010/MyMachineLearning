@@ -3,6 +3,8 @@
 Created on 2017年6月12日
 
 @author: Jeffrey Zhou
+
+贝叶斯邮件分类
 '''
 import re
 from numpy import * 
