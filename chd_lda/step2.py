@@ -41,19 +41,26 @@ class LDAModel(object):
                 self.nw[self.docs[x][y]][topic] += 1  
                 self.nd[x][topic] += 1  
         
-        for x in range(self.iter_times):  #循环多次采样
+        for x in range(self.iter_times):  # 循环多次采样
             for i in range(self.docs_count):  
                 for j in range(len(self.docs[i])):  
                     topic = self.sampling(i, j)  
                     self.Z[i][j] = topic  
         
-        self.theta = np.array([ [0.0 for y in range(self.K)] for x in range(self.docs_count) ])  
+        # 计算每个主题的词分布
         self.phi = np.array([ [ 0.0 for y in range(self.words_count) ] for x in range(self.K)]) 
         _nwsum = np.sum(self.nw, axis=0)
         for i in range(self.K):  
             self.phi[i] = (self.nw.T[i] + self.beta) / (_nwsum[i] + self.words_count * self.beta)  
+            
+        # 计算每个文档的主题分布
+        self.theta = np.array([ [0.0 for y in range(self.K)] for x in range(self.docs_count) ])  
+        _ndsum = np.sum(self.nd, axis=1)
+        for m in range(self.docs_count):
+            for k in range(self.K):
+                self.theta[m][k] = (self.nd[m][k] + self.alpha) / (_ndsum[m] + self.K * self.alpha)
           
-    def sampling(self, i, j):  #Gibbs Sampling
+    def sampling(self, i, j):  # Gibbs Sampling
         topic = self.Z[i][j]  
         word = self.docs[i][j]  
         self.nw[word][topic] -= 1  
