@@ -1,3 +1,5 @@
 ﻿/.settings
 /.settings/org.eclipse.core.resources.prefs
 *.pyc
+/chh_detect/ffmpeg.exe
+/chh_detect/datasets/yolov4.weights
