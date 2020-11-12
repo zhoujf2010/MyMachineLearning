@@ -3,3 +3,4 @@
 *.pyc
 /chh_detect/ffmpeg.exe
 /chh_detect/datasets/yolov4.weights
+/chh_detect/vgg19_weights_tf_dim_ordering_tf_kernels.h5
