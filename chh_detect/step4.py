@@ -7,86 +7,59 @@ Created on 2020年11月12日
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
-from tensorflow.python.keras import backend
-from tensorflow.python.keras.applications import imagenet_utils
-from tensorflow.python.keras.layers import VersionAwareLayers
-from tensorflow.python.keras.engine import training
-from tensorflow.python.keras.utils import layer_utils
 import scipy
+from operator import itemgetter
 
 
-def VGG19(include_top=True, weights='imagenet', input_tensor=None,
-    input_shape=None, pooling=None, classes=1000, classifier_activation='softmax'):
-    layers = VersionAwareLayers()
+def VGG19(include_top=True, input_shape=None, pooling=None, classes=1000, classifier_activation='softmax'):
     # Determine proper input shape
-    input_shape = imagenet_utils.obtain_input_shape(
-        input_shape,
-        default_size=224,
-        min_size=32,
-        data_format=backend.image_data_format(),
-        require_flatten=include_top,
-        weights=weights)
+    img_input = tf.keras.layers.Input(shape=input_shape)
     
-    if input_tensor is None:
-        img_input = layers.Input(shape=input_shape)
-    else:
-        if not backend.is_keras_tensor(input_tensor):
-            img_input = layers.Input(tensor=input_tensor, shape=input_shape)
-        else:
-            img_input = input_tensor
     # Block 1
-    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same', name='block1_conv1')(img_input)
-    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same', name='block1_conv2')(x)
-    x = layers.MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool')(x)
+    x = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', padding='same', name='block1_conv1')(img_input)
+    x = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', padding='same', name='block1_conv2')(x)
+    x = tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool')(x)
     
     # Block 2
-    x = layers.Conv2D(128, (3, 3), activation='relu', padding='same', name='block2_conv1')(x)
-    x = layers.Conv2D(128, (3, 3), activation='relu', padding='same', name='block2_conv2')(x)
-    x = layers.MaxPooling2D((2, 2), strides=(2, 2), name='block2_pool')(x)
+    x = tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='same', name='block2_conv1')(x)
+    x = tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='same', name='block2_conv2')(x)
+    x = tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2), name='block2_pool')(x)
     
     # Block 3
-    x = layers.Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv1')(x)
-    x = layers.Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv2')(x)
-    x = layers.Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv3')(x)
-    x = layers.Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv4')(x)
-    x = layers.MaxPooling2D((2, 2), strides=(2, 2), name='block3_pool')(x)
+    x = tf.keras.layers.Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv1')(x)
+    x = tf.keras.layers.Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv2')(x)
+    x = tf.keras.layers.Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv3')(x)
+    x = tf.keras.layers.Conv2D(256, (3, 3), activation='relu', padding='same', name='block3_conv4')(x)
+    x = tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2), name='block3_pool')(x)
     
     # Block 4
-    x = layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv1')(x)
-    x = layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv2')(x)
-    x = layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv3')(x)
-    x = layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv4')(x)
-    x = layers.MaxPooling2D((2, 2), strides=(2, 2), name='block4_pool')(x)
+    x = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv1')(x)
+    x = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv2')(x)
+    x = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv3')(x)
+    x = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block4_conv4')(x)
+    x = tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2), name='block4_pool')(x)
     
     # Block 5
-    x = layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv1')(x)
-    x = layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv2')(x)
-    x = layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv3')(x)
-    x = layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv4')(x)
-    x = layers.MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
+    x = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv1')(x)
+    x = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv2')(x)
+    x = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv3')(x)
+    x = tf.keras.layers.Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv4')(x)
+    x = tf.keras.layers.MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
     
     if include_top:
         # Classification block
-        x = layers.Flatten(name='flatten')(x)
-        x = layers.Dense(4096, activation='relu', name='fc1')(x)
-        x = layers.Dense(4096, activation='relu', name='fc2')(x)
-        imagenet_utils.validate_activation(classifier_activation, weights)
-        x = layers.Dense(classes, activation=classifier_activation,
-                         name='predictions')(x)
+        x = tf.keras.layers.Flatten(name='flatten')(x)
+        x = tf.keras.layers.Dense(4096, activation='relu', name='fc1')(x)
+        x = tf.keras.layers.Dense(4096, activation='relu', name='fc2')(x)
+        x = tf.keras.layers.Dense(classes, activation=classifier_activation, name='predictions')(x)
     else:
         if pooling == 'avg':
-            x = layers.GlobalAveragePooling2D()(x)
+            x = tf.keras.layers.GlobalAveragePooling2D()(x)
         elif pooling == 'max':
-            x = layers.GlobalMaxPooling2D()(x)
+            x = tf.keras.layers.GlobalMaxPooling2D()(x)
     
-    # Ensure that the model takes into account
-    # any potential predecessors of `input_tensor`.
-    if input_tensor is not None:
-        inputs = layer_utils.get_source_inputs(input_tensor)
-    else:
-        inputs = img_input
     # Create model.
-    model = training.Model(inputs, x, name='vgg19')
+    model = tf.keras.Model(img_input, x, name='vgg19')
     return model
 
 
@@ -116,43 +89,51 @@ def tensor_to_image(tensor):
     return tensor
 
 
+# 截取中间结果的模型
 class StyleContentModel(tf.keras.models.Model):
 
-    def __init__(self, style_layers, content_layer, model):
+    def __init__(self, selectedlayers, model):
         super(StyleContentModel, self).__init__()
-        self.vgg = self.vgg_layers(style_layers + [content_layer], model)
-        self.style_layers = style_layers
-        self.content_layers = content_layer
-        self.num_style_layers = len(style_layers)
-        self.vgg.trainable = False
+        self.vgg = self.vgg_layers(selectedlayers, model)
+        self.selectedlayers = selectedlayers
     
     def vgg_layers(self, layer_names, model):
         """ Creates a vgg model that returns a list of intermediate output values."""
         model.trainable = False
         outputs = [model.get_layer(name).output for name in layer_names]
         model = tf.keras.Model([model.input], outputs)
+        model.trainable = False
         return model
-        
-    def gram_matrix(self, input_tensor):
-        result = tf.linalg.einsum('bijc,bijd->bcd', input_tensor, input_tensor)
-        input_shape = tf.shape(input_tensor)
-        num_locations = tf.cast(input_shape[1] * input_shape[2], tf.float32)
-        return result / (num_locations)
 
     def call(self, inputs):
         "Expects float input in [0,1]"
         outputs = self.vgg(inputs * 255.0)
-        style_outputs, content_outputs = (outputs[:self.num_style_layers], outputs[self.num_style_layers:])
+        style_dict = {style_name:value for style_name, value in zip(self.selectedlayers, outputs)}
+        return style_dict
+ 
         
-        style_outputs = [self.gram_matrix(style_output) for style_output in style_outputs]
-        style_dict = {style_name:value for style_name, value in zip(self.style_layers, style_outputs)}
-        
-        return {'content':content_outputs[0], 'style':style_dict}
+def gram_matrix(input_tensor):
+    result = tf.linalg.einsum('bijc,bijd->bcd', input_tensor, input_tensor)
+    input_shape = tf.shape(input_tensor)
+    num_locations = tf.cast(input_shape[1] * input_shape[2], tf.float32)
+    return result / (num_locations)   
 
+
+def total_loss(style_outputs, style_targets, content_outputs, content_targets):
+    style_weight = 1e-2  # style权重
+    content_weight = 1e4  # 内容权重
     
+    style_loss = tf.add_n([tf.reduce_mean((gram_matrix(so) - gram_matrix(st)) ** 2) 
+                                   for so, st in zip(style_outputs, style_targets)]) / len(style_layers)
+
+    content_loss = tf.reduce_mean((content_outputs - content_targets) ** 2) 
+    loss = style_loss * style_weight + content_loss * content_weight
+    return loss
+
+            
 if __name__ == '__main__':
     # 定义并加载vgg-19模型
-    model = VGG19()
+    model = VGG19(input_shape=(224, 224, 3))
     # https://storage.googleapis.com/tensorflow/keras-applications/vgg19/vgg19_weights_tf_dim_ordering_tf_kernels.h5
     model.load_weights("vgg19_weights_tf_dim_ordering_tf_kernels.h5")
 
@@ -166,45 +147,43 @@ if __name__ == '__main__':
     # 我们感兴趣的风格层
     style_layers = ['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1']
     
-    extractor = StyleContentModel(style_layers, content_layer, model)
-    opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
-
-    style_weight = 1e-2
-    content_weight = 1e4
+    extractor = StyleContentModel(style_layers + [content_layer], model)
+    style_targets = list(itemgetter(*style_layers)(extractor(style_image)))
+    content_targets = extractor(content_image)[content_layer]
     
-    for n in range(2):
+    opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
+     
+    for n in range(4):
         print("range:", n)
         with tf.GradientTape() as tape:
             outputs = extractor(mixedimage)
-            style_outputs = outputs['style']
-            content_outputs = outputs['content']
-            
-            style_targets = extractor(style_image)['style']
-            content_targets = extractor(content_image)['content']
-        
-            style_loss = tf.add_n([tf.reduce_mean((style_outputs[name] - style_targets[name]) ** 2) 
-                                   for name in style_outputs.keys()]) / len(style_layers)
-            content_loss = tf.reduce_mean((content_outputs - content_targets) ** 2) 
-            loss = style_loss * style_weight + content_loss * content_weight
-            
+            style_outputs = list(itemgetter(*style_layers)(outputs))
+            content_outputs = outputs[content_layer]
+
+            loss = total_loss(style_outputs, style_targets, content_outputs, content_targets)
+             
             grad = tape.gradient(loss, mixedimage)
             opt.apply_gradients([(grad, mixedimage)])
-            
+             
             tmp = tf.clip_by_value(mixedimage, clip_value_min=0.0, clip_value_max=1.0)
             mixedimage.assign(tmp)
+            
+#         if n % 10 == 0:
+#             scipy.misc.imsave("result%d.jpg" % n, tensor_to_image(mixedimage))
+     
+#     scipy.misc.imsave("result.jpg", tensor_to_image(mixedimage))
     
-    scipy.misc.imsave("result.jpg", tensor_to_image(mixedimage))
-    
-#     plt.subplot(2, 2, 1)
-#     plt.imshow(tensor_to_image(content_image))
-#     plt.title("content")
-#     
-#     plt.subplot(2, 1, 2)
-#     plt.imshow(tensor_to_image(style_image))
-#     plt.title("style")
-#     
-#     plt.subplot(2, 2, 2)
-#     plt.imshow(tensor_to_image(mixedimage))
-#     plt.title("mixed")
-#     plt.show()
+#     mixedimage = image_to_tensor("result90.jpg")
+    plt.subplot(2, 2, 1)
+    plt.imshow(tensor_to_image(content_image))
+    plt.title("content")
+     
+    plt.subplot(2, 1, 2)
+    plt.imshow(tensor_to_image(mixedimage))
+    plt.title("mixed")
+     
+    plt.subplot(2, 2, 2)
+    plt.imshow(tensor_to_image(style_image))
+    plt.title("style")
+    plt.show()
 
