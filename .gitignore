@@ -4,3 +4,4 @@
 /chh_detect/ffmpeg.exe
 /chh_detect/datasets/yolov4.weights
 /chh_detect/vgg19_weights_tf_dim_ordering_tf_kernels.h5
+/chi_rnn/data/glove.6B.50d.txt
