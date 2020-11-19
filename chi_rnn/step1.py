@@ -43,9 +43,9 @@ def loadData(filename):
 
 if __name__ == '__main__':
     np.set_printoptions(linewidth=500)
-    tf.enable_eager_execution()
+#     tf.enable_eager_execution()
     
-    rows, char_to_ix, ix_to_char, vocab, maxlen = loadData("dinos.txt")
+    rows, char_to_ix, ix_to_char, vocab, maxlen = loadData("data/dinos.txt")
     
     # 装入tensor中
     char_dataset = tf.data.Dataset.from_tensor_slices(rows)
@@ -78,10 +78,10 @@ if __name__ == '__main__':
     model.build(tf.TensorShape([Batch_size, maxlen]))
     model.summary()  # 输出描述信息
       
-    optimizer = tf.train.AdamOptimizer()
+    optimizer = tf.optimizers.Adam()
   
     def lossfunction(rel, preds):
-        return tf.losses.sparse_softmax_cross_entropy(rel, preds)
+        return tf.compat.v1.losses.sparse_softmax_cross_entropy(rel, preds)
      
     EPOCHS = 5
     for epoch in range(EPOCHS):
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         predictions = model(input_eval)
         predictions = tf.squeeze(predictions, 0)
         predictions = predictions / temperature
-        predicted_id = tf.multinomial(predictions, num_samples=1)[-1, 0].numpy()
+        predicted_id = tf.compat.v1.multinomial(predictions, num_samples=1)[-1, 0].numpy()
         input_eval = tf.expand_dims([predicted_id], 0)
         if predicted_id == 0:
             break  # 碰到\n 表示结束

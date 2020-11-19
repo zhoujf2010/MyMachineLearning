@@ -9,7 +9,7 @@ Created on 2018年8月1日
 
 import numpy as np
 from copy import deepcopy
-from chd_rnn.step1 import loadData
+from chi_rnn.step1 import loadData
 import random
 
 
@@ -252,7 +252,7 @@ if __name__ == '__main__':
     np.set_printoptions(linewidth=300)
     np.random.seed(0)
     
-    rows, char_to_ix, ix_to_char, vocab, maxlen = loadData("dinos.txt")
+    rows, char_to_ix, ix_to_char, vocab, maxlen = loadData("data/dinos.txt")
   
     # 数据进行one-hot编码
     X = []
